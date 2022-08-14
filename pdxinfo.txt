@@ -1,0 +1,7 @@
+name=500 Ways to Die
+author=Nicholas Carlson, @thewriterwins
+description= A text adventure where failure is just part of life.
+bundleID=com.thewriterwins.500WaysToDie
+version=0.00129
+imagePath=source/images/infoCard.png
+
