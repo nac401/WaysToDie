@@ -31,6 +31,12 @@ class('Fish').extends()
 function Fish:init(difficulty)
 	--BASICS: difficulty
 	self.difficulty = difficulty
+
+	--DIFFICULTY: difficulty variables and initialization of those variables
+	self.numPulls = 2
+	if self.difficulty >= 3 then
+		self.numPulls = 1
+	end
 	
 	--SPRITES: initialization and setup
 	--initialize and setup splash sprite 
@@ -55,8 +61,6 @@ function Fish:init(difficulty)
 	
 	--TRAITS: fish variables
 	self.speed = 1
-	self.maxSpeed = self.difficulty
-	self.speedChange = pd.timer.new(0)
 	
 	--ANIMATORS: animator variables
 	self.transitioning = false
@@ -80,31 +84,10 @@ function Fish:setPulling()
 end
 
 function Fish:pull()
-	local randomPulls = math.random(1, 2)
+	local randomPulls = math.random(1, self.numPulls)
 	local randNum = math.random(1, 3)
 	bobSounds[randNum]:play(randomPulls)
 	self.splash:setAnimation(splashPull_ImageTable, 50, randomPulls)
-end
-
-function Fish:getSpeed()
-	--PART 1: DETERMINE FISH SPEED
-	if self.speedChange.timeLeft == 0 then
-		--randomly change fish speed
-		local randomModifier = math.random(-2, 2)
-		while randomModifier == 0 do
-			randomModifier = math.random(-2, 2)
-		end
-		self.speed += randomModifier
-		--make sure that fish speed is appropriate
-		if self.speed <= 0 then
-			self.speed = 1
-		elseif self.speed > self.maxSpeed then
-			self.speed = self.maxSpeed
-		end
-		--reset timer
-		local randomTime = math.random(250, 750)
-		self.speedChange = pd.timer.new(randomTime)
-	end
 end
 
 function Fish:splashRemove()
@@ -177,4 +160,5 @@ end
 
 function Fish:update()
 	self:caughtAnimation()
+	self.speed = math.random(0, 2)
 end

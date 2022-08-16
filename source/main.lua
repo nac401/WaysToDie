@@ -48,7 +48,7 @@ initialize()
 
 --test init
 local endings = {"genericSuccess", "genericFail"}
-test = Recall(2, 2, 2, endings)
+test = Performance(2, endings, 3)
 
 --our treasured update function, hallowed be thy name
 function playdate.update()	

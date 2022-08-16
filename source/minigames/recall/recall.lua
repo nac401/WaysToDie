@@ -22,20 +22,35 @@ recall_currentCatches = 0
 
 class('Recall').extends('Minigame')
 
-function Recall:init(difficulty, catchesNeeded, maxFailures, endings)
+function Recall:init(difficulty, endings, catchesNeeded, maxFailures)
 	Recall.super.init(self)
 	
 	--BASICS: difficulty, duration, endings, score
 	self.difficulty = difficulty
-	--set score
+	self.endings = endings
+	--set global variables that interact with all classes
 	recall_score = 500
-	--set win conditions, in catches and failures
 	recall_currentCatches = 0
 	recall_failures = 0
-	self.catchesNeeded = catchesNeeded
-	self.maxFailures = maxFailures
-	--set possible end scene IDs
-	self.endings = endings
+
+	--DIFFICULTY: define difficulty, defaults and modifiers
+	if self.difficulty <= 1 then
+		self.catchesNeeded = 1
+		self.maxFailures = 2 
+	elseif self.difficulty == 2 then
+		self.catchesNeeded = 2
+		self.maxFailures = 2 
+	elseif self.difficulty >= 3 then
+		self.catchesNeeded = 1
+		self.maxFailures = 1 
+	end
+	--set modifiers if defined, to catches needed and maximum failures
+	if catchesNeeded ~= nil then
+		self.catchesNeeded = catchesNeeded
+	end
+	if maxFailures ~= nil then
+		self.maxFailures = maxFailures
+	end
 	
 	--win conditions
 	self.caught = false

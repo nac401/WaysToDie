@@ -22,49 +22,84 @@ rightCurtainSprite:setImage(curtainImage, gfx.kImageFlippedX)
 --initialize glyphs
 local glyphTable = {}
 local keyTable = {} 
-
+--A
 local glyphA_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_A')
 glyphTable[1] = glyphA_image
 keyTable[1] = "A"
-
+--B
 local glyphB_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_B')
 glyphTable[2] = glyphB_image
 keyTable[2] = "B"
-
+--RIGHT
 local glyphR_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_RIGHT')
 glyphTable[3] = glyphR_image
 keyTable[3] = "R"
-
+--LEFT
 local glyphL_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_LEFT')
 glyphTable[4] = glyphL_image
 keyTable[4] = "L"
-
+--UP
 local glyphU_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_UP')
 glyphTable[5] = glyphU_image
 keyTable[5] = "U"
-
+--DOWN
 local glyphD_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_DOWN')
 glyphTable[6] = glyphD_image
 keyTable[6] = "D"
-
+--COUNTER CLOCKWISE CRANK
 local glyphCCW_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_CRANKCCW')
 glyphTable[7] = glyphCCW_image
 keyTable[7] = "CCW"
-
+--CLOCKWISE CRANK
 local glyphCW_image = gfx.image.new('images/Performance_Minigame/glyphs/Glyph_CRANKCW')
 glyphTable[8] = glyphCW_image
 keyTable[8] = "CW"
 
+--optional hearttracker imagetable
+local heartImageTable = gfx.imagetable.new("images/UI/hearts")
+
+--init sounds
+local mistakeSounds = {}
+mistakeSounds[1] = playdate.sound.sampleplayer.new("sounds/performance/mistake1")
+mistakeSounds[2] = playdate.sound.sampleplayer.new("sounds/performance/mistake2")
+mistakeSounds[3] = playdate.sound.sampleplayer.new("sounds/performance/mistake3")
+
 class('Performance').extends('Minigame')
 
-function Performance:init(difficulty, duration, endings)
+function Performance:init(difficulty, endings, hearts, duration, numGlyphs)
 	Performance.super.init(self)
 	--BASICS:  set difficulty and other core variables
 	self.difficulty = difficulty
 	self.duration = duration
 	self.currentDuration = 0
 	self.endings = endings
-	
+
+	--DIFFICULTY: set difficulty, including number of glyphs and number of rounds
+	if self.difficulty <= 1 then
+		self.duration = 3
+		self.typeGlyphs = 6
+		self.numGlyphs = 3
+		self.timerDifficulty = 2500
+	elseif self.difficulty == 2 then
+		self.duration = 4
+		self.typeGlyphs = 8
+		self.numGlyphs = 4
+		self.timerDifficulty = 3500
+	elseif self.difficulty >= 3 then
+		self.duration = 4
+		self.typeGlyphs = 8
+		self.numGlyphs = 4
+		self.timerDifficulty = 3000
+	end
+	--change variables if specific modifiers are present in the init
+	if numGlyphs ~= nil then
+		self.numGlyphs = numGlyphs
+	end
+	if duration ~= nil then 
+		self.duration = duration
+	end
+
+
 	--SPRITES: init sprites and do setup
 	self.background = backgroundSprite
 	self.curtainLeft = leftCurtainSprite
@@ -75,10 +110,10 @@ function Performance:init(difficulty, duration, endings)
 	self.background:moveTo(centerPoint)
 	--place curtains
 	self.curtainLeft:add()
-	self.curtainLeft:setZIndex(10)
+	self.curtainLeft:setZIndex(101)
 	self.curtainLeft:moveTo(centerX - curtainOffset, centerY)
 	self.curtainRight:add()
-	self.curtainRight:setZIndex(11)
+	self.curtainRight:setZIndex(102)
 	self.curtainRight:moveTo(centerX + curtainOffset, centerY)
 	
 	--GLYPHS: init tables of glyphs and keys
@@ -90,32 +125,8 @@ function Performance:init(difficulty, duration, endings)
 	--VARIABLES: init other miscellaneous variables
 	self.printed = false
 	self.testIncrement = 1
-	--including numGlyphs, according to difficulty
-	self.numGlyphs = 3
-	if self.difficulty < 3 then
-		self.numGlyphs = 3
-	elseif self.difficulty > 6 then
-		self.numGlyphs = 6
-	else
-		self.numGlyphs = self.difficulty
-	end
-	--determine the type of glyphs printed:
-	--2 = A and B; 6 = all buttons; 8 = includes crank
-	self.typeGlyphs = 6
-	if self.difficulty < 2 then
-		self.typeGlyphs = 2
-	elseif self.difficulty < 3 then
-		self.typeGlyphs = 6
-	else
-		self.typeGlyphs = 8 --should be 8  for crank, 6 for no crank
-	end
-	--initialize timer, according to difficulty
-	self.timerDifficulty = 2000
-	--determine how long the timer should be, based on difficulty
-	if self.difficulty > 6 then
-		self.timerDifficulty -= self.difficulty*100
-	end
-	--initialize  timers
+	
+	--initialize timers
 	self.timer = pd.timer.new(self.timerDifficulty + 1000)
 	
 	--print first round of glyphs before curtain call
@@ -127,6 +138,16 @@ function Performance:init(difficulty, duration, endings)
 	--allow screenshake
 	self.shaker = Shake()
 	self.shakeIntensity = 3
+
+	--init optional heartTracker
+	self.canMistake = true
+	if hearts ~= nil then
+		self.hearts = hearts
+		self.heartTracker = Tracker(self.hearts, heartImageTable, 2, 0, nil, nil, 5)
+	else 
+		self.hearts = nil
+	end
+	
 end
 
 function Performance:running()
@@ -184,6 +205,37 @@ function Performance:running()
 			end
 		end
 	end
+	--check if out of hearts
+	if self.hearts ~= nil and self.hearts <= 0 then
+		self.hearts = nil
+		self.timer = pd.timer.new(2000)
+		local random = math.random(1, 10)
+		--declare transition and initiate it
+		transitioner = Transition("FAILURE", failureText[random])
+		transitioner.transitioning = true
+		self.endFactor = #self.endings
+		
+	end
+end
+
+function Performance:mistake()
+	self.shaker = Shake(self.glyphPrinter[self.testIncrement])
+	self.shaker.shakeAmount = self.shakeIntensity
+	self.mistakes += 1
+	local randNum = math.random(1, 3)
+	mistakeSounds[randNum]:play()
+	if self.canMistake and self.hearts ~= nil then
+		self.hearts -= 1
+		self.heartTracker:update()
+		self.canMistake = false
+	end
+end
+
+function Performance:correct()
+	self.glyphPrinter[self.testIncrement]:remove()
+	self.testIncrement += 1
+	self.crank = 0
+	self.canMistake = true
 end
 
 function Performance:printGlyphs()
@@ -208,75 +260,46 @@ function Performance:checkGlyphs()
 	self.crank += pd.getCrankTicks(self.crankIntensity)
 	
 	if self.printedKey[self.testIncrement] == "A" and pd.buttonJustPressed(pd.kButtonA) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonA)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "B" and pd.buttonJustPressed(pd.kButtonB) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonB)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "U" and pd.buttonJustPressed(pd.kButtonUp) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonUp)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "D" and pd.buttonJustPressed(pd.kButtonDown) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonDown)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "L" and pd.buttonJustPressed(pd.kButtonLeft) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonLeft)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "R" and pd.buttonJustPressed(pd.kButtonRight) then 
-		self.glyphPrinter[self.testIncrement]:remove()
-		self.testIncrement += 1
-		self.crank = 0
+		self:correct()
 	elseif pd.buttonJustPressed(pd.kButtonRight)then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
+		self:mistake()
 	end
 	if self.printedKey[self.testIncrement] == "CW" then
 		if self.crank > self.crankIntensity - 2 then
-			self.glyphPrinter[self.testIncrement]:remove()
-			self.testIncrement += 1
-			self.crank = 0
+			self:correct()
 		end
 	elseif self.printedKey[self.testIncrement] == "CCW" then
 		if self.crank < -self.crankIntensity + 2 then
-			self.glyphPrinter[self.testIncrement]:remove()
-			self.testIncrement += 1
-			self.crank = 0
+			self:correct()
 		end
 	elseif self.crank ~= 0 then
 		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
 		self.shaker.shakeAmount = self.shakeIntensity
-		self.mistakes += 1
 		self.crank = 0
 	end
 	--end timer when all glyphs have been checked and removed
@@ -295,7 +318,7 @@ end
 function Performance:update()
 	self.shaker:update()
 	self:running()
-	if transitioner.queueLoadIn == true and  self.endFactor ~= nil then
+	if transitioner.queueLoadIn == true and self.endFactor ~= nil then
 		self:cleanUp()
 	end
 	if transitioner.queueFinish == true and self.endFactor ~= nil then

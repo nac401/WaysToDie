@@ -14,11 +14,22 @@ function Limiters:init(difficulty)
 	--LIMITERS: init limiters and their variables
 	--set difficulty
 	self.difficulty = difficulty
-	--define good zone for fish catching
-	self.zoneDifficulty = (10 - self.difficulty)*5
-	self.goodZoneOffset = -50
-	self.goodZoneMin = centerX - self.zoneDifficulty + self.goodZoneOffset
-	self.goodZoneMax = centerX + self.zoneDifficulty + self.goodZoneOffset
+
+	--DIFFICULTY: set zone size and time between movements
+	if self.difficulty <= 1 then
+		self.zoneDifficulty = 45
+		self.timeDifficulty = 600
+	elseif self.difficulty == 2 then
+		self.zoneDifficulty = 40
+		self.timeDifficulty = 500
+	elseif self.difficulty >= 3 then
+		self.zoneDifficulty = 30
+		self.timeDifficulty = 400
+	end
+
+	--initialize the good zone
+	self.goodZoneMin = centerX - self.zoneDifficulty
+	self.goodZoneMax = centerX + self.zoneDifficulty
 	--initialize limiters
 	self.minLimiter = gfx.sprite.new(minLimiterImage)
 	self.maxLimiter = gfx.sprite.new(maxLimiterImage)
@@ -52,8 +63,8 @@ function Limiters:move()
 		local xMin = self.zoneDifficulty + 10
 		local xMax = 250 - self.zoneDifficulty
 		local randomLoc = math.random(xMin, xMax)
-		local time1 = math.random(500, 1000)
-		local time2 = math.random(1000, 1500)
+		local time1 = math.random(self.timeDifficulty, self.timeDifficulty*2)
+		local time2 = math.random(self.timeDifficulty*2, self.timeDifficulty*2 + 500)
 		self.limiterAnimator = gfx.animator.new(time1, self.goodZoneMin, randomLoc, pd.easingFunctions.outCubic)
 		self.limiterTimer = pd.timer.new(time2)
 	elseif self.limiterAnimator ~= nil then
@@ -65,8 +76,8 @@ function Limiters:move()
 end
 
 function Limiters:reset()
-	self.goodZoneMin = centerX - self.zoneDifficulty + self.goodZoneOffset
-	self.goodZoneMax = centerX + self.zoneDifficulty + self.goodZoneOffset
+	self.goodZoneMin = centerX - self.zoneDifficulty
+	self.goodZoneMax = centerX + self.zoneDifficulty
 end
 
 function Limiters:cleanUp()

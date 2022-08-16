@@ -36,6 +36,8 @@ function Rod:init(difficulty)
 	
 	--BASICS: difficulty and score
 	self.difficulty = difficulty
+
+	--DIFFICULTY: difficulty variables and initialization of those variables
 	
 	--SPRITES: animated and static sprities in regards to the rod
 	--The Rod: the main sprite
@@ -225,15 +227,12 @@ end
 function Rod:catching()
 	--STAGE 3: CATCHING FISH
 	if self.nabbedFish then
-		--PART 0: MOVE THE LIMITERS
+		--PART 1: MOVE THE LIMITERS
 		self.limiters:move()
 		
-		--PART 1: get the fish speed
-		self.fish:getSpeed()
-		
 		--PART 2: DETERMINE CRANK/ANIMATION
-		if self.crank < 0 then
-			self.crank = -1
+		if self.crank < -2 then
+			self.crank = -2
 		end
 		--set variable for current speed at this frame
 		local currentSpeed = self.crank - self.fish.speed
