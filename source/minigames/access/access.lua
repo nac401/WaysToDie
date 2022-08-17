@@ -37,15 +37,38 @@ local random = 1
 
 class('Access').extends('Minigame')
 
-function Access:init(difficulty, numPicks, numLocks, endings)
+function Access:init(difficulty, endings, numPicks, numLocks)
 	Access.super.init(self)
 	--BASICS:  set difficulty and other core variables
 	self.difficulty = difficulty
-	self.numLocks = numLocks
-	self.numPicks = numPicks
+	
 	self.currentLock = 1
 	self.endings = endings
-	
+
+	--DIFFICULTY: determine difficulty
+	if self.difficulty <= 1 then
+		self.maxTension = 7
+		self.progressGoal = 10
+		self.numPicks = 2
+		self.numLocks = 2
+	elseif self.difficulty == 2 then
+		self.maxTension = 5
+		self.progressGoal = 15
+		self.numPicks = 2
+		self.numLocks = 3
+	elseif self.difficulty >= 3 then
+		self.maxTension = 3
+		self.progressGoal = 15
+		self.numPicks = 1
+		self.numLocks = 3
+	end
+	if numPicks ~= nil then 
+		self.numPicks = numPicks
+	end
+	if numLocks ~= nil then 
+		self.numLocks = numLocks
+	end
+
 	--set key and crank (compared)
 	self.key = math.random(-14, 45)
 	self.bigKey = nil
@@ -110,9 +133,7 @@ function Access:init(difficulty, numPicks, numLocks, endings)
 	self.pickable = false
 	--Counters: for determining tension and progress
 	self.tension = 0
-	self.maxTension = (10 - self.difficulty) + 5
 	self.progress = 0
-	self.progressGoal = self.difficulty*14
 	
 	--TRANSITION:
 	self.pickTransitioning = false

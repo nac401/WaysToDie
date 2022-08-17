@@ -64,6 +64,14 @@ mistakeSounds[1] = playdate.sound.sampleplayer.new("sounds/performance/mistake1"
 mistakeSounds[2] = playdate.sound.sampleplayer.new("sounds/performance/mistake2")
 mistakeSounds[3] = playdate.sound.sampleplayer.new("sounds/performance/mistake3")
 
+local correctSounds = {}
+correctSounds[1] = playdate.sound.sampleplayer.new("sounds/performance/success1")
+correctSounds[2] = playdate.sound.sampleplayer.new("sounds/performance/success2")
+correctSounds[3] = playdate.sound.sampleplayer.new("sounds/performance/success3")
+correctSounds[4] = playdate.sound.sampleplayer.new("sounds/performance/success4")
+
+local performanceMusic = playdate.sound.fileplayer.new("sounds/music/APerformanceToDieFor")
+
 class('Performance').extends('Minigame')
 
 function Performance:init(difficulty, endings, hearts, duration, numGlyphs)
@@ -127,7 +135,7 @@ function Performance:init(difficulty, endings, hearts, duration, numGlyphs)
 	self.testIncrement = 1
 	
 	--initialize timers
-	self.timer = pd.timer.new(self.timerDifficulty + 1000)
+	self.timer = pd.timer.new(2250)
 	
 	--print first round of glyphs before curtain call
 	self:printGlyphs()
@@ -147,7 +155,7 @@ function Performance:init(difficulty, endings, hearts, duration, numGlyphs)
 	else 
 		self.hearts = nil
 	end
-	
+	performanceMusic:play()
 end
 
 function Performance:running()
@@ -189,6 +197,7 @@ function Performance:running()
 					--declare transition and initiate it
 					transitioner = Transition("FAILURE", failureText[random])
 					transitioner.transitioning = true
+					performanceMusic:setVolume(0, 0, 0.5)
 					self.endFactor = #self.endings
 				elseif self.currentDuration >= self.duration then
 					--set longer timer to ensure curtains stay closed during transition
@@ -196,6 +205,7 @@ function Performance:running()
 					--declare transition and initiate it
 					transitioner = Transition("SUCCESS", successText[random])
 					transitioner.transitioning = true
+					performanceMusic:setVolume(0, 0, 0.5)
 					self.endFactor = 1
 				else
 					self.testIncrement = 1
@@ -214,7 +224,7 @@ function Performance:running()
 		transitioner = Transition("FAILURE", failureText[random])
 		transitioner.transitioning = true
 		self.endFactor = #self.endings
-		
+		performanceMusic:setVolume(0, 0, 0.5)
 	end
 end
 
@@ -236,6 +246,8 @@ function Performance:correct()
 	self.testIncrement += 1
 	self.crank = 0
 	self.canMistake = true
+	local randNum = math.random(1, 4)
+	correctSounds[randNum]:play()
 end
 
 function Performance:printGlyphs()
@@ -298,8 +310,6 @@ function Performance:checkGlyphs()
 			self:correct()
 		end
 	elseif self.crank ~= 0 then
-		self.shaker = Shake(self.glyphPrinter[self.testIncrement])
-		self.shaker.shakeAmount = self.shakeIntensity
 		self.crank = 0
 	end
 	--end timer when all glyphs have been checked and removed
@@ -320,6 +330,7 @@ function Performance:update()
 	self:running()
 	if transitioner.queueLoadIn == true and self.endFactor ~= nil then
 		self:cleanUp()
+		performanceMusic:stop()
 	end
 	if transitioner.queueFinish == true and self.endFactor ~= nil then
 		selectedID = self.endings[self.endFactor]

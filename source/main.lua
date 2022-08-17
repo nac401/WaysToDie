@@ -47,8 +47,8 @@ end
 initialize()
 
 --test init
-local endings = {"genericSuccess", "genericFail"}
-test = Performance(2, endings, 3)
+--local endings = {"genericSuccess", "genericFail"}
+--test = Access(1, endings)
 
 --our treasured update function, hallowed be thy name
 function playdate.update()	
@@ -58,10 +58,10 @@ function playdate.update()
 	transitioner:update()
 	
 	--run current scene
-	--scene[currentScene]["running"]()
+	scene[currentScene]["running"]()
 
 	--run test minigame
-	test:update()
+	--test:update()
 	
 	--update sprites and timers
 	gfx.sprite.update()

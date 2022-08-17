@@ -232,7 +232,7 @@ scene["recallMenu"] = {
 scene["recallEasy"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Recall(2, 2, 2, endings)
+		thisScene = Recall(1, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -253,7 +253,7 @@ scene["recallEasy"] = {
 scene["recallMedium"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Recall(4, 2, 2, endings)
+		thisScene = Recall(2, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -273,7 +273,7 @@ scene["recallMedium"] = {
 scene["recallHard"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Recall(6, 2, 1, endings)
+		thisScene = Recall(3, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -348,7 +348,7 @@ scene["performanceMenu"] = {
 scene["performanceEasy"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Performance(3, 3, endings)
+		thisScene = Performance(1, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -368,7 +368,7 @@ scene["performanceEasy"] = {
 scene["performanceMedium"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Performance(4, 5, endings)
+		thisScene = Performance(2, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -388,7 +388,7 @@ scene["performanceMedium"] = {
 scene["performanceHard"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Performance(6, 5, endings)
+		thisScene = Performance(3, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -505,7 +505,7 @@ scene["accessMedium"] = {
 scene["accessHard"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Access(4, 1, 3, endings)
+		thisScene = Access(3, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,

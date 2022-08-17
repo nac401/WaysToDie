@@ -5,6 +5,9 @@ import "scenes/template"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+--music
+local titleMusic = playdate.sound.fileplayer.new("sounds/music/ManyWaysToDie")
+
 scene["mainmenu"] = {
 	initialize = function()
 		local menuImageTable = {}
@@ -25,6 +28,7 @@ scene["mainmenu"] = {
 		local options = {"new game", "continue"}
 		menuOptions = Menu(options)
 		seeMenu = false
+		titleMusic:play()
 	end,
 
 	running = function()
@@ -53,5 +57,6 @@ scene["mainmenu"] = {
 	terminate = function()
 		mainMenu:remove()
 		menuOptions:cleanUp()
+		titleMusic:setVolume(0, 0, 1)
 	end
 }
