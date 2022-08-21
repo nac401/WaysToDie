@@ -71,6 +71,9 @@ function Recall:init(difficulty, endings, catchesNeeded, maxFailures)
 	pointBar = PointBar(200, 0, 400, 1000, 5)
 	pointBar:moveTo(200, 0)
 	pointBar:remove()
+
+	--indicate running
+	self.running = true
 end
 
 function Recall:endCondition()
@@ -126,13 +129,15 @@ end
 
 --update function containing the relevant functions
 function Recall:update()
-	self.rod:update()
-	self.ambience:update()
-	pointBar:updateLength(recall_score)
-	self:endCondition()
-	
+	if self.running == true then
+		self.rod:update()
+		self.ambience:update()
+		pointBar:updateLength(recall_score)
+		self:endCondition()
+	end
 	if transitioner.queueLoadIn == true and  self.endFactor ~= nil then
 		self:cleanUp()
+		self.running = false
 	end
 	if transitioner.queueFinish == true and self.endFactor ~= nil then
 		selectedID = self.endings[self.endFactor]

@@ -463,7 +463,7 @@ scene["accessMenu"] = {
 scene["accessEasy"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Access(1, 2, 2, endings)
+		thisScene = Access(1, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
 	end,
@@ -484,9 +484,10 @@ scene["accessEasy"] = {
 scene["accessMedium"] = {
 	initialize = function()
 		local endings = {"genericSuccess", "genericFail"}
-		thisScene = Access(3, 2, 3, endings)
+		thisScene = Access(2, endings)
 		save["saveID"] = selectedID
 		pd.datastore.write(save, "save")
+		print("initialize")
 	end,
 
 	running = function()
@@ -494,6 +495,7 @@ scene["accessMedium"] = {
 		if selectedID ~= "accessMedium" then
 			sceneTransition(selectedID)
 		end
+		print("running")
 	end,
 
 	terminate = function()

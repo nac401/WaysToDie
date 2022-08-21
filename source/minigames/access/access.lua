@@ -190,6 +190,8 @@ function Access:init(difficulty, endings, numPicks, numLocks)
 		end,
 	}
 	pd.inputHandlers.push(self.accessInputHandler)
+	--indicate running
+	self.running = true
 end
 
 function Access:drawPick(angle)
@@ -313,43 +315,48 @@ function Access:moveBigPick()
 end
 
 function Access:update()
-	if self.pickingMode then
-		if self.pickTransitioning then
-			self:drawPick(self.pickAnimator:currentValue())
-			self.pickable = false
-			if self.pickAnimator:ended() then
-				self.pickTransitioning = false
+	if self.running == true then
+		--draw pick or move big pick
+		if self.pickingMode then
+			if self.pickTransitioning then
+				self:drawPick(self.pickAnimator:currentValue())
+				self.pickable = false
+				if self.pickAnimator:ended() then
+					self.pickTransitioning = false
+				end
+			else
+				self:drawPick()
 			end
-		else
-			self:drawPick()
+		elseif not self.pickingMode then
+			self:moveBigPick()
 		end
-	elseif not self.pickingMode then
-		self:moveBigPick()
-	end
-	
-	--end conditions
-	if self.pinTracker:finished() then
-		random = math.random(1, 10)
-		self.pinTracker:lock()
-		--declare transition and initiate it
-		transitioner = Transition("SUCCESS", successText[random])
-		transitioner.transitioning = true
-		self.endFactor = 1
-	elseif self.pickTracker:finished() then
-		random = math.random(1, 10)
-		self.pickTracker:lock()
-		--declare transition and initiate it
-		transitioner = Transition("FAILURE", failureText[random])
-		transitioner.transitioning = true
-		self.endFactor = #self.endings
+		--end conditions
+		if self.pinTracker:finished() then
+			random = math.random(1, 10)
+			self.pinTracker:lock()
+			--declare transition and initiate it
+			transitioner = Transition("SUCCESS", successText[random])
+			transitioner.transitioning = true
+			self.endFactor = 1
+			self.running = false
+		elseif self.pickTracker:finished() then
+			random = math.random(1, 10)
+			self.pickTracker:lock()
+			--declare transition and initiate it
+			transitioner = Transition("FAILURE", failureText[random])
+			transitioner.transitioning = true
+			self.endFactor = #self.endings
+			self.running = false
+		end
 	end
 	--transitioning out
-	if transitioner.queueLoadIn == true and  self.endFactor ~= nil then
+	if transitioner.queueLoadIn == true and self.endFactor ~= nil then
 		self:cleanUp()
-	end
+	end	
+	--queue scene transition
 	if transitioner.queueFinish == true and self.endFactor ~= nil then
 		selectedID = self.endings[self.endFactor]
-	end	
+	end
 end
 
 function Access:cleanUp()

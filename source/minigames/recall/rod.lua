@@ -27,7 +27,7 @@ local rodReelIn_ImageTable = gfx.imagetable.new("images/Recall_Minigame/Rod/rod_
 local rodFailure_ImageTable = gfx.imagetable.new("images/Recall_Minigame/Rod/rod_failure")
 
 --init sounds
-local castSound 	= playdate.sound.sampleplayer.new("sounds/recall/cast")
+local castSound = playdate.sound.sampleplayer.new("sounds/recall/cast")
 
 class('Rod').extends()
 
@@ -349,6 +349,9 @@ function Rod:cleanUp()
 	self.rodTimer:remove()
 	self.fish:cleanUp()
 	self.limiters:cleanUp()
+	pd.inputHandlers.pop()
+	pd.inputHandlers.pop()
+	print("rod cleaning up")
 end
 
 function Rod:update()

@@ -155,6 +155,10 @@ function Performance:init(difficulty, endings, hearts, duration, numGlyphs)
 	else 
 		self.hearts = nil
 	end
+
+	--play music
+	performanceMusic:stop()
+	performanceMusic = playdate.sound.fileplayer.new("sounds/music/APerformanceToDieFor")
 	performanceMusic:play()
 end
 

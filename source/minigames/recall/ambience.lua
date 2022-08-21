@@ -87,6 +87,8 @@ function Ambience:init()
 	self.waveTimer = pd.timer.new(2000)
 	self.cloudTimer = pd.timer.new(1)
 	self.birdTimer = pd.timer.new(4000)
+
+	self.running = true
 end
 
 function Ambience:ambience()
@@ -163,9 +165,13 @@ function Ambience:cleanUp()
 	self.waterTransparent:remove()
 	self.cloud[1]:remove()
 	self.cloud[2]:remove()
+	waveSound:stop()
+	self.running = false
 end
 
 --update function containing the relevant functions
 function Ambience:update()
-	self:ambience()
+	if self.running == true then 
+		self:ambience()
+	end
 end

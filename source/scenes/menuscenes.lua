@@ -28,6 +28,10 @@ scene["mainmenu"] = {
 		local options = {"new game", "continue"}
 		menuOptions = Menu(options)
 		seeMenu = false
+
+		--play music
+		titleMusic:stop()
+		titleMusic = playdate.sound.fileplayer.new("sounds/music/ManyWaysToDie")
 		titleMusic:play()
 	end,
 

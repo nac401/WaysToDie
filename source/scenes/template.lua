@@ -59,6 +59,7 @@ scene["template"] = {
 	end
 }
 
+--scene transition function
 function sceneTransition(nextScene)
 	scene[currentScene]["terminate"]()
 	currentScene = nextScene

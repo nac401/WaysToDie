@@ -21,6 +21,7 @@ import "elements/transition"
 import "minigames/performance/performance"
 import "minigames/recall/recall"
 import "minigames/access/access"
+import "minigames/conflict/conflict"
 
 --constants and shortcuts
 local pd <const> = playdate
@@ -44,11 +45,12 @@ local function initialize()
 	scene[currentScene]["initialize"]()
 end
 --run initialize function once before runtime
-initialize()
+--initialize()
 
 --test init
---local endings = {"genericSuccess", "genericFail"}
---test = Access(1, endings)
+local endings = {"genericSuccess", "genericFail"}
+transitioner = Transition("", "")
+test = Conflict(1, endings)
 
 --our treasured update function, hallowed be thy name
 function playdate.update()	
@@ -58,10 +60,10 @@ function playdate.update()
 	transitioner:update()
 	
 	--run current scene
-	scene[currentScene]["running"]()
+	--scene[currentScene]["running"]()
 
 	--run test minigame
-	--test:update()
+	test:update()
 	
 	--update sprites and timers
 	gfx.sprite.update()
