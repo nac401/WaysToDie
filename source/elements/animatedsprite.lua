@@ -53,11 +53,6 @@ function AnimatedSprite:setAnimation(newTable, newTiming, newLoops)
     self.loop = gfx.animation.loop.new(self.timing, self.sprites)
 end
 
-function AnimatedSprite:inReverse()
-    self.loop.step = -1
-    self.startFrame = self.loop.endFrame
-end
-
 function AnimatedSprite:setFrame(frame)
     self.loop.frame = frame
 end
@@ -88,6 +83,16 @@ end
 function AnimatedSprite:stopAtFrame(frame)
     if self.loop.frame == frame then
         self:pauseAtFrame(frame)
+    end
+end
+
+function AnimatedSprite:hasEnded()
+    print(self.loop.frame)
+    print(#self.loop)
+    if self.loop.frame == self.numFrames then
+        return true
+    else
+        return false
     end
 end
 
