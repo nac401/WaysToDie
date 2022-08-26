@@ -87,8 +87,6 @@ function AnimatedSprite:stopAtFrame(frame)
 end
 
 function AnimatedSprite:hasEnded()
-    print(self.loop.frame)
-    print(#self.loop)
     if self.loop.frame == self.numFrames then
         return true
     else
